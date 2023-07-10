@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ProofreadModule } from './proofread/proofread.module';
 import { Proofread } from './proofread/entities/proofread.entity';
+import { createClient } from 'redis';
 
 @Module({
   imports: [

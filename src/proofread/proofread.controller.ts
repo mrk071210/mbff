@@ -13,6 +13,7 @@ import {
   Response,
 } from '@nestjs/common';
 import { ProofreadService } from './proofread.service';
+import { AiCheckService } from './aiCheck.service';
 import { CreateProofreadDto } from './dto/create-proofread.dto';
 import { UpdateProofreadDto } from './dto/update-proofread.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -27,7 +28,10 @@ import { zip } from 'compressing';
 
 @Controller('proofread')
 export class ProofreadController {
-  constructor(private readonly proofreadService: ProofreadService) {}
+  constructor(
+    private readonly proofreadService: ProofreadService,
+    private readonly aiCheckService: AiCheckService,
+  ) {}
 
   @Post()
   create(@Body() createProofreadDto: CreateProofreadDto) {
@@ -78,29 +82,41 @@ export class ProofreadController {
 
     const result = await this.proofreadService.createTask(newProofread);
     if (result) {
-      try {
-        const fileName = `${token}_${decodeURI(file.originalname)}`;
-        const createFlag: any = await getDocxContext(
-          path.join(
-            process.cwd(),
-            `proofread-uploads/${moment().format('YYYYMM')}/${fileName}`,
-          ),
-          fileName,
-        );
-        console.log(3, createFlag);
-        if (createFlag === 'success') {
-          this.updateTask({
-            taskId: result.taskId,
-            taskStatus: 2,
-          });
-          return { flag: true, message: '任务创建成功' };
-        }
-      } catch (e) {
-        return {
-          flag: false,
-          message: '任务创建异常，请重试',
-        };
-      }
+      // try {
+      const fileName = `${token}_${decodeURI(file.originalname)}`;
+      //   const createFlag: any = await getDocxContext(
+      //     path.join(
+      //       process.cwd(),
+      //       `proofread-uploads/${moment().format('YYYYMM')}/${fileName}`,
+      //     ),
+      //     fileName,
+      //   );
+      //   console.log(3, createFlag);
+      //   if (createFlag === 'success') {
+      //     this.updateTask({
+      //       taskId: result.taskId,
+      //       taskStatus: 2,
+      //     });
+      //     return { flag: true, message: '任务创建成功' };
+      //   }
+      // } catch (e) {
+      //   return {
+      //     flag: false,
+      //     message: '任务创建异常，请重试',
+      //   };
+      // }
+      this.aiCheckService.getDocxContext(
+        path.join(
+          process.cwd(),
+          `proofread-uploads/${moment().format('YYYYMM')}/${fileName}`,
+        ),
+        fileName,
+        result.taskId,
+      );
+      return {
+        flag: true,
+        message: '任务运行中',
+      };
     } else {
       return { flag: false, message: '任务创建异常，请重试' };
     }
