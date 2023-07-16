@@ -115,6 +115,7 @@ export class ProofreadController {
       );
       return {
         flag: true,
+        taskId: result.taskId,
         message: '任务运行中',
       };
     } else {

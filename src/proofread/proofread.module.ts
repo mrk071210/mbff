@@ -17,9 +17,10 @@ import { createClient } from 'redis';
       async useFactory() {
         const client = createClient({
           socket: {
-            host: '127.0.0.1',
+            host: '42.193.131.165',
             port: 6379,
           },
+          password: 'mjkk071210',
         });
         await client.connect();
         return client;

@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ProofreadModule } from './proofread/proofread.module';
 import { Proofread } from './proofread/entities/proofread.entity';
 import { createClient } from 'redis';
+import { SocketGateway } from './sockets/sockets.gateway';
 
 @Module({
   imports: [
@@ -38,6 +39,23 @@ import { createClient } from 'redis';
     ProofreadModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: 'REDIS_CLIENT',
+      async useFactory() {
+        const client = createClient({
+          socket: {
+            host: '42.193.131.165',
+            port: 6379,
+          },
+          password: 'mjkk071210',
+        });
+        await client.connect();
+        return client;
+      },
+    },
+    SocketGateway,
+  ],
 })
 export class AppModule {}

@@ -50,8 +50,8 @@ const ErrMap = {
   grammar_pc: '句式杂糅&语义重复',
 };
 
-const APISecret = 'MTc4NWJjOTNhNGYxYzZmOGJhNTgxYWNj';
-const APIKey = '6a22c6bfc2078c3ab5b67b75fd778a2e';
+const APISecret = 'MTc5NWY2MDk3YTQ5ZTA1OWE2MjkzMzA0';
+const APIKey = 'e2c6c0be200735b4ef16d65612a44241';
 
 // 不展示图片
 const options = {
@@ -414,7 +414,7 @@ export class AiCheckService {
   @InjectRepository(Proofread)
   private proofreadRepository: Repository<Proofread>;
 
-  async checkMethod(text, taskId) {
+  async checkMethod(text, taskId, index, totalCount) {
     const host = 'api.xf-yun.com';
     const date = new Date().toUTCString();
 
@@ -462,14 +462,18 @@ export class AiCheckService {
       response = { timings: err.timings, ...err.response };
       responseErr = err;
     }
+    console.log(response.body);
     if (response.statusCode === 200) {
       let result = {} as any;
       try {
         result = JSON.parse(response.body) as any;
+        console.log(result);
         this.redisClient.lPush(`task-${taskId}`, [
           JSON.stringify({
             text: text,
             result: result.payload.result.text,
+            index: index,
+            end: index === totalCount - 1 ? true : false,
           }),
         ]);
       } catch (e) {
@@ -503,7 +507,14 @@ export class AiCheckService {
       const checkTextResult = checkText(domList);
 
       const resList = await Promise.all(
-        checkTextResult.textList.map((item) => this.checkMethod(item, taskId)),
+        checkTextResult.textList.map((item, index) =>
+          this.checkMethod(
+            item,
+            taskId,
+            index,
+            checkTextResult.textList.length,
+          ),
+        ),
       );
       // const resList = [1];
       let commentsId = 0;
@@ -588,7 +599,7 @@ export class AiCheckService {
       }
       return createFlag;
     } catch (e) {
-      console.log(12312);
+      console.log(e);
       throw e;
     }
   }
