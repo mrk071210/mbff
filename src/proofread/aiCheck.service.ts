@@ -435,7 +435,7 @@ export class AiCheckService {
       response = await got.post(url, {
         json: {
           header: {
-            app_id: 'f164c8eb',
+            app_id: '004d0e31',
             status: 3,
           },
           parameter: {
