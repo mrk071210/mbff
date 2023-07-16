@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import got from 'got';
-const APISecret = 'MTc4NWJjOTNhNGYxYzZmOGJhNTgxYWNj';
-const APIKey = '6a22c6bfc2078c3ab5b67b75fd778a2e';
+const APISecret = '';
+const APIKey = '';
 
 const checkMethod = async (text) => {
   const host = 'api.xf-yun.com';
